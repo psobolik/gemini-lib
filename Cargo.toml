@@ -1,0 +1,10 @@
+[package]
+name = "gemini-lib"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+webpki-roots = "0.26.6"
+url = "2.5.2"
+native-tls = "0.2.12"
+serde = { version = "1", features = ["derive"] }
