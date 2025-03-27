@@ -34,6 +34,50 @@ impl Success {
         self.body = body.to_vec();
         self
     }
+    pub fn mime(&self) -> Option<mime::Mime> {
+        match self.mime_type.parse::<mime::Mime>() {
+            Ok(mime) => Some(mime),
+            Err(_) => None,
+        }
+    }
+    pub fn is_gemini(&self) -> bool {
+        match self.mime() {
+            Some(mime) => mime.type_() == "text" && mime.subtype().as_str() == "gemini",
+            None => false,
+        }
+    }
+    pub fn is_text_like(&self) -> bool {
+        self.is_text() || self.is_xml()
+    }
+    fn test_mime_subtype(&self, test_subtype: &str) -> bool {
+        match self.mime() {
+            Some(mime) => mime.subtype().as_str() == test_subtype,
+            None => false,
+        }
+    }
+    fn test_mime_type(&self, test_type: &str) -> bool {
+        match self.mime() {
+            Some(mime) => {
+                mime.type_() == test_type
+            }
+            _ => false,
+        }
+    }
+    pub fn is_xml(&self) -> bool {
+        self.test_mime_subtype("xml")
+    }
+    pub fn is_text(&self) -> bool {
+        self.test_mime_type("text")
+    }
+    pub fn is_image(&self) -> bool {
+        self.test_mime_type("image")
+    }
+    pub fn text(&self) -> String {
+        String::from_utf8(self.body.clone()).unwrap_or_default()
+    }
+    pub fn lines(&self)-> Vec<String> {
+        self.text().lines().map(|line| line.to_string()).collect()
+    }
 }
 
 impl From<String> for Success {

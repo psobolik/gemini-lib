@@ -24,7 +24,7 @@ pub enum Response {
 }
 
 impl Response {
-    pub fn split_status(status: &String) -> (&str, &str) {
+    pub fn split_status(status: &str) -> (&str, &str) {
         if let Some(tuple) = status.split_once(" ") {
             tuple
         } else {

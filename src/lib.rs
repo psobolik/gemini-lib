@@ -6,22 +6,20 @@ use std::net::{TcpStream, ToSocketAddrs};
 use std::time::Duration;
 
 pub mod response;
+pub mod parse_gemini_document;
+mod gemini_line;
+mod gemini_link;
 
+// TypeScript can't handle Rust enums, so we have this.
 pub fn make_request(url: url::Url) -> Result<GeminiResponse, Box<dyn std::error::Error + 'static>> {
+    let response = make_gemini_request(url)?;
+    Ok(GeminiResponse::from(response))
+}
+pub fn make_gemini_request(url: url::Url) -> Result<Response, Box<dyn std::error::Error + 'static>> {
     match url.scheme() {
         "gemini" => {
             let bytes = make_request_(url)?;
-            match Response::try_from(bytes.as_slice())? {
-                Response::Prompt(prompt) => Ok(GeminiResponse::from(Response::Prompt(prompt))),
-                Response::Success(success) => Ok(GeminiResponse::from(Response::Success(success))),
-                Response::Redirect(redirect) => {
-                    Ok(GeminiResponse::from(Response::Redirect(redirect)))
-                }
-                Response::Failure(failure) => Ok(GeminiResponse::from(Response::Failure(failure))),
-                Response::Certificate(certificate) => {
-                    Ok(GeminiResponse::from(Response::Certificate(certificate)))
-                }
-            }
+            Ok(Response::try_from(bytes.as_slice())?)
         }
         _ => Err(Box::new(io::Error::new(
             io::ErrorKind::InvalidInput,
